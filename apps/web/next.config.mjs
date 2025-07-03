@@ -3,9 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   distDir: ".next",
   pageExtensions: ["js", "jsx", "ts", "tsx"],
-  experimental: {
-    appDir: true,
-  },
   basePath: "",
   assetPrefix: "",
   amp: {
