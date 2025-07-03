@@ -6,6 +6,7 @@ import { Button } from "@repo/ui/button";
 import { Input } from "@repo/ui/input";
 import { Search, Plus, Check } from "lucide-react";
 import AuthModal from "@/components/modals/AuthModal";
+import { cn } from "@repo/ui/utils";
 
 // Mock data for project search
 const MOCK_PROJECTS = [
@@ -23,6 +24,7 @@ export default function AppHero() {
   const [watchlistItems, setWatchlistItems] = useState<Set<string>>(new Set());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Mock auth state
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,11 +41,12 @@ export default function AppHero() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdown and retract search bar when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
+        setIsSearchActive(false);
       }
     };
 
@@ -96,67 +99,76 @@ export default function AppHero() {
         </div>
 
         <div className="space-y-4 max-w-xl mx-auto">
-          <div className="relative" ref={searchRef}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                ref={inputRef}
-                type="text"
-                placeholder="What project are you looking for?"
-                value={searchValue}
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                  setIsDropdownOpen(e.target.value.trim().length > 0);
-                }}
-                onFocus={() => {
-                  if (searchValue.trim().length > 0) {
-                    setIsDropdownOpen(true);
-                  }
-                }}
-                className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full"
-              />
-            </div>
-
-            {/* Custom Dropdown */}
-            {shouldShowDropdown && isDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
-                <div className="max-h-64 overflow-y-auto">
-                  {filteredProjects.map((project) => (
-                    <div
-                      key={project.slug}
-                      className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
-                      onClick={() => handleProjectSelect(project)}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <span className="font-semibold text-[--fd-primary]">
-                          {project.display}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {project.name}
-                        </span>
-                      </div>
-                      
-                      <div className="relative">
-                        <button
-                          onClick={(e) => handleAddToWatchlist(project.slug, e)}
-                          className={`w-8 h-8 rounded-full border transition-all duration-300 flex items-center justify-center ${
-                            watchlistItems.has(project.slug)
-                              ? "bg-white text-black border-white"
-                              : "bg-[--fd-primary] text-black border-[--fd-primary] hover:bg-white hover:border-white"
-                          }`}
-                        >
-                          {watchlistItems.has(project.slug) ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <Plus className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className="flex justify-center">
+            <div 
+              ref={searchRef}
+              className={cn(
+                "relative transition-all duration-700 ease-in-out",
+                isSearchActive ? "w-full" : "w-80"
+              )}
+            >
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  ref={inputRef}
+                  type="text"
+                  placeholder={isSearchActive ? "What project are you looking for?" : "Search projects..."}
+                  value={searchValue}
+                  onChange={(e) => {
+                    setSearchValue(e.target.value);
+                    setIsDropdownOpen(e.target.value.trim().length > 0);
+                  }}
+                  onFocus={() => {
+                    setIsSearchActive(true);
+                    if (searchValue.trim().length > 0) {
+                      setIsDropdownOpen(true);
+                    }
+                  }}
+                  className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full"
+                />
               </div>
-            )}
+
+              {/* Custom Dropdown */}
+              {shouldShowDropdown && isDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+                  <div className="max-h-64 overflow-y-auto">
+                    {filteredProjects.map((project) => (
+                      <div
+                        key={project.slug}
+                        className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
+                        onClick={() => handleProjectSelect(project)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="font-semibold text-[--fd-primary]">
+                            {project.display}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {project.name}
+                          </span>
+                        </div>
+                        
+                        <div className="relative">
+                          <button
+                            onClick={(e) => handleAddToWatchlist(project.slug, e)}
+                            className={`w-8 h-8 rounded-full border transition-all duration-300 flex items-center justify-center ${
+                              watchlistItems.has(project.slug)
+                                ? "bg-white text-black border-white"
+                                : "bg-[--fd-primary] text-black border-[--fd-primary] hover:bg-white hover:border-white"
+                            }`}
+                          >
+                            {watchlistItems.has(project.slug) ? (
+                              <Check className="w-4 h-4" />
+                            ) : (
+                              <Plus className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="text-center pt-4 space-y-3">
