@@ -159,9 +159,9 @@ export default function AppHero() {
             )}
           </div>
 
-          <div className="text-center pt-8 space-y-4">
+          <div className="text-center pt-6 space-y-3">
             <h3 className="text-lg font-medium text-white/80">
-              Airdrop incoming soon?
+              Airdrop incoming?
             </h3>
             <Button
               onClick={handleSetupClaim}
