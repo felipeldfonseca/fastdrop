@@ -24,15 +24,19 @@ export default function LandingNavbar() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 backdrop-blur border-b border-white/10">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 text-sm text-[--brand-fg]">
-        <Link href="/" className="font-black tracking-tight text-lg">
-          Fast<span className="text-[--brand-accent]">Drop</span>
-        </Link>
+      <nav className="mx-auto flex h-16 max-w-6xl items-center px-6 text-sm text-[--brand-fg]">
+        {/* Logo - Left side */}
+        <div className="flex-shrink-0">
+          <Link href="/" className="font-black tracking-tight text-lg">
+            Fast<span className="text-[--brand-accent]">Drop</span>
+          </Link>
+        </div>
 
-        <div className="flex items-center gap-6">
+        {/* Navigation items - Centered */}
+        <div className="flex-1 flex justify-center">
           {isAppPage ? (
             // App navigation items
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-8">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -55,19 +59,24 @@ export default function LandingNavbar() {
             </div>
           ) : (
             // Landing page navigation items
-            navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="hover:text-[--brand-accent-2]"
-                target={item.external ? "_blank" : undefined}
-                rel={item.external ? "noopener noreferrer" : undefined}
-              >
-                {item.name}
-              </Link>
-            ))
+            <div className="hidden md:flex items-center">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="hover:text-[--brand-accent-2]"
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           )}
+        </div>
 
+        {/* Action button - Right side */}
+        <div className="flex-shrink-0">
           {isAppPage ? (
             // Connect wallet button for app pages
             <Button
