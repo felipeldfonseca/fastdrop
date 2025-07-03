@@ -85,7 +85,7 @@ export default function AppHero() {
 
   return (
     <>
-      <div className="text-center space-y-8 py-16">
+      <div className="text-center space-y-6 py-12">
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-display font-bold">
             Front‑run the dump.
@@ -95,7 +95,7 @@ export default function AppHero() {
           </p>
         </div>
 
-        <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="space-y-4 max-w-2xl mx-auto">
           <div className="relative" ref={searchRef}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -159,7 +159,7 @@ export default function AppHero() {
             )}
           </div>
 
-          <div className="text-center pt-6 space-y-3">
+          <div className="text-center pt-4 space-y-3">
             <h3 className="text-lg font-medium text-white/80">
               Airdrop incoming?
             </h3>
