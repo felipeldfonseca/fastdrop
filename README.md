@@ -4,20 +4,20 @@
 
 ---
 
-### ✨ Key Concepts
+### Key Concepts
 
 - **Wallet Support:** Designed to work with standard wallet adapters.
 - **Claim & Liquidate:** The core goal is to enable users to claim and sell their airdropped tokens as quickly as possible.
 - **User-Friendly Interface:** A clean, responsive UI for managing your airdrops.
 
-### 🏗️ Tech Stack
+### Tech Stack
 
 - **Next.js 14:** Using the App Router and React 18.
 - **Turborepo:** High-performance build system for monorepos.
 - **TypeScript:** For end-to-end type safety.
 - **Tailwind CSS & shadcn/ui:** For a clean, modern, and responsive UI.
 
-### 📂 Project Structure (Monorepo)
+### Project Structure (Monorepo)
 
 ```
 .
@@ -31,7 +31,7 @@
    └─ ...         # Project documentation and ideas
 ```
 
-### 🛠️ Getting Started
+### Getting Started
 
 1.  **Clone the repository:**
     ```bash
@@ -52,10 +52,10 @@
 
 The application will be available at `http://localhost:3000`.
 
-### ⚠️ Disclaimer
+### Disclaimer
 
 This software is experimental. Use at your own risk. The maintainers are not responsible for any financial losses.
 
-### 📜 License
+### License
 
 MIT
