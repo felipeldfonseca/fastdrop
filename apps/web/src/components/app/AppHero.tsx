@@ -113,7 +113,7 @@ export default function AppHero() {
                     setIsDropdownOpen(true);
                   }
                 }}
-                className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full"
+                className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground placeholder:text-center rounded-full"
               />
             </div>
 
