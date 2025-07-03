@@ -108,11 +108,11 @@ export default function AppHero() {
         </div>
 
         <div className="space-y-4 max-w-xl mx-auto">
-          <div className="relative flex justify-center">
+          <div className="flex justify-center">
             <div
               ref={searchRef}
               className={cn(
-                "transition-all duration-700 ease-in-out",
+                "relative transition-all duration-700 ease-in-out",
                 isSearchActive ? "w-full" : "w-80"
               )}
             >
@@ -123,7 +123,7 @@ export default function AppHero() {
                 {/* Custom Placeholder */}
                 <div
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center gap-2 text-muted-foreground transition-opacity duration-200 pointer-events-none",
+                    "absolute inset-0 flex items-center justify-center gap-2 text-muted-foreground transition-opacity duration-300 pointer-events-none",
                     isSearchActive || searchValue ? "opacity-0" : "opacity-100"
                   )}
                 >
@@ -148,53 +148,53 @@ export default function AppHero() {
                   className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full outline-none focus:ring-2 focus:ring-white/20"
                 />
               </div>
-            </div>
-            
-            {/* Custom Dropdown - Moved to be a sibling */}
-            {isDropdownRendered && (
-              <div
-                className={cn(
-                  "absolute top-full w-full mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden origin-top transition-all duration-700 ease-in-out",
-                  isDropdownOpen ? "opacity-100 transform-none" : "opacity-0 -translate-y-4 scale-95"
-                )}
-              >
-                <div className="max-h-64 overflow-y-auto">
-                  {filteredProjects.map((project) => (
-                    <div
-                      key={project.slug}
-                      className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
-                      onClick={() => handleProjectSelect(project)}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <span className="font-semibold text-[--fd-primary]">
-                          {project.display}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {project.name}
-                        </span>
+
+              {/* Custom Dropdown */}
+              {isDropdownRendered && (
+                <div
+                  className={cn(
+                    "absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden origin-top transition-all duration-700 ease-in-out",
+                    isDropdownOpen ? "opacity-100 transform-none" : "opacity-0 -translate-y-2"
+                  )}
+                >
+                  <div className="max-h-64 overflow-y-auto">
+                    {filteredProjects.map((project) => (
+                      <div
+                        key={project.slug}
+                        className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
+                        onClick={() => handleProjectSelect(project)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="font-semibold text-[--fd-primary]">
+                            {project.display}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {project.name}
+                          </span>
+                        </div>
+                        
+                        <div className="relative">
+                          <button
+                            onClick={(e) => handleAddToWatchlist(project.slug, e)}
+                            className={`w-8 h-8 rounded-full border transition-all duration-300 flex items-center justify-center ${
+                              watchlistItems.has(project.slug)
+                                ? "bg-white text-black border-white"
+                                : "bg-[--fd-primary] text-black border-[--fd-primary] hover:bg-white hover:border-white"
+                            }`}
+                          >
+                            {watchlistItems.has(project.slug) ? (
+                              <Check className="w-4 h-4" />
+                            ) : (
+                              <Plus className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
                       </div>
-                      
-                      <div className="relative">
-                        <button
-                          onClick={(e) => handleAddToWatchlist(project.slug, e)}
-                          className={`w-8 h-8 rounded-full border transition-all duration-300 flex items-center justify-center ${
-                            watchlistItems.has(project.slug)
-                              ? "bg-white text-black border-white"
-                              : "bg-[--fd-primary] text-black border-[--fd-primary] hover:bg-white hover:border-white"
-                          }`}
-                        >
-                          {watchlistItems.has(project.slug) ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <Plus className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="text-center pt-4 space-y-3">
