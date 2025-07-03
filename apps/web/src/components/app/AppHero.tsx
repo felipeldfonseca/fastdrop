@@ -85,7 +85,7 @@ export default function AppHero() {
 
   return (
     <>
-      <div className="text-center space-y-6 py-12">
+      <div className="text-center space-y-6 pt-12">
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-display font-bold">
             Front‑run the dump.
