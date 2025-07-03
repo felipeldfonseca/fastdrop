@@ -1,5 +1,3 @@
-import Footer from "@/components/landing/Footer";
-
 export default function AppLayout({
   children,
 }: {
@@ -10,7 +8,6 @@ export default function AppLayout({
       <main className="py-8 pt-24">
         {children}
       </main>
-      <Footer />
     </div>
   );
 } 

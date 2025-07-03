@@ -113,39 +113,45 @@ export default function AppHero() {
               ref={searchRef}
               className={cn(
                 "relative transition-all duration-700 ease-in-out",
-                isSearchActive ? "w-full" : "w-80"
+                isSearchActive ? "w-full" : "w-96"
               )}
             >
               <div
                 className="relative w-full h-12 cursor-text"
                 onClick={() => inputRef.current?.focus()}
               >
-                {/* Custom Placeholder */}
+                {/* Static Icon */}
+                <Search
+                  className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10"
+                />
+
+                {/* Animated Placeholder Text */}
                 <div
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center gap-2 text-muted-foreground transition-opacity duration-300 pointer-events-none",
-                    isSearchActive || searchValue ? "opacity-0" : "opacity-100"
+                    "absolute top-1/2 -translate-y-1/2 pointer-events-none transition-[left,transform] duration-700 ease-in-out",
+                    isSearchActive
+                      ? "left-10"
+                      : "left-1/2 -translate-x-1/2"
                   )}
                 >
-                  <Search className="h-4 w-4" />
-                  <span>Search projects...</span>
+                  <span
+                    className={cn(
+                      "text-muted-foreground whitespace-nowrap transition-opacity",
+                      searchValue ? "opacity-0" : "opacity-100"
+                    )}
+                  >
+                    What project are you looking for?
+                  </span>
                 </div>
 
-                {/* Real Input */}
-                <Search
-                  className={cn(
-                    "absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-opacity duration-300",
-                    isSearchActive ? "opacity-100" : "opacity-0"
-                  )}
-                />
                 <Input
                   ref={inputRef}
                   type="text"
-                  placeholder={isSearchActive ? "What project are you looking for?" : ""}
+                  placeholder=""
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   onFocus={() => setIsSearchActive(true)}
-                  className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full outline-none focus:ring-2 focus:ring-white/20"
+                  className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white rounded-full outline-none focus:ring-2 focus:ring-white/20"
                 />
               </div>
 
