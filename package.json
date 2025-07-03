@@ -1,0 +1,15 @@
+{
+  "name": "sol-airdrop-fast-sell",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm --filter web lint"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "turbo": "latest"
+  },
+  "packageManager": "pnpm@8.15.6"
+} 

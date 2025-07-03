@@ -1,0 +1,14 @@
+{
+  "name": "@repo/eslint-config-custom",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "next.js"
+  ],
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^14.2.3",
+    "eslint-config-turbo": "^2.0.4",
+    "eslint-plugin-react": "7.34.2",
+    "typescript": "^5.4.5"
+  }
+} 
