@@ -20,7 +20,7 @@ export default function LandingNavbar() {
           </Link>
 
           <Button asChild className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg">
-            <Link href="/dashboard">Launch App</Link>
+            <Link href="/app">Launch App</Link>
           </Button>
         </div>
       </nav>

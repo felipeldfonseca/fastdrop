@@ -62,6 +62,10 @@ const config: Config = {
   		boxShadow: {
   			lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
   			'cyan-glow': '0 10px 15px -3px rgba(6, 182, 212, 0.1), 0 4px 6px -2px rgba(6, 182, 212, 0.05)'
+  		},
+  		fontFamily: {
+  			'display': ['var(--font-display)', 'system-ui', 'sans-serif'],
+  			'body': ['Inter', 'system-ui', 'sans-serif']
   		}
   	}
   },

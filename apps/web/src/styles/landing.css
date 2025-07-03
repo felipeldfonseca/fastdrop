@@ -4,4 +4,9 @@
   --brand-accent: #02d27f;
   --brand-accent-2: #8247e5;
   --brand-muted: #9ca3af;
+  
+  /* Fast Drop specific tokens */
+  --fd-primary: #14f195;
+  --fd-accent: #9945ff;
+  --fd-bg: #0b0124;
 } 
