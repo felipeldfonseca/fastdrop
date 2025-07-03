@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui/button";
 import { Input } from "@repo/ui/input";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@repo/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover";
-import { Search } from "lucide-react";
+import { Search, Plus, Check } from "lucide-react";
 
 // Mock data for project search
 const MOCK_PROJECTS = [
@@ -19,15 +17,20 @@ const MOCK_PROJECTS = [
 
 export default function AppHero() {
   const router = useRouter();
-  const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [watchlistItems, setWatchlistItems] = useState<Set<string>>(new Set());
+  const [showAuthPopup, setShowAuthPopup] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Mock auth state
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcut for search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setSearchOpen(true);
+        inputRef.current?.focus();
       }
     };
 
@@ -35,8 +38,21 @@ export default function AppHero() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+        setShowAuthPopup(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleProjectSelect = (project: typeof MOCK_PROJECTS[0]) => {
-    setSearchOpen(false);
+    setIsDropdownOpen(false);
     setSearchValue("");
     router.push(`/project/${project.slug}`);
   };
@@ -45,11 +61,28 @@ export default function AppHero() {
     router.push("/claim");
   };
 
-  const filteredProjects = MOCK_PROJECTS.filter(
-    (project) =>
-      project.display.toLowerCase().includes(searchValue.toLowerCase()) ||
-      project.name.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const handleAddToWatchlist = (projectSlug: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!isAuthenticated) {
+      setShowAuthPopup(projectSlug);
+      setTimeout(() => setShowAuthPopup(null), 3000); // Hide popup after 3 seconds
+      return;
+    }
+
+    setWatchlistItems(prev => new Set(Array.from(prev).concat(projectSlug)));
+    // Here you would also make an API call to add to actual watchlist
+  };
+
+  const filteredProjects = searchValue.trim() 
+    ? MOCK_PROJECTS.filter(
+        (project) =>
+          project.display.toLowerCase().includes(searchValue.toLowerCase()) ||
+          project.name.toLowerCase().includes(searchValue.toLowerCase())
+      )
+    : [];
+
+  const shouldShowDropdown = searchValue.trim().length > 0 && filteredProjects.length > 0;
 
   return (
     <div className="text-center space-y-8 py-16">
@@ -63,52 +96,85 @@ export default function AppHero() {
       </div>
 
       <div className="space-y-6 max-w-2xl mx-auto">
-        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={searchOpen}
-              className="w-full justify-start text-left font-normal h-12 bg-white/5 border-white/10 hover:bg-white/10"
-            >
-              <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-              <span className="text-muted-foreground">
-                What project are you looking for?
-              </span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0 bg-black/90 border-white/10" align="start">
-            <Command>
-              <CommandInput
-                placeholder="Search projects..."
-                value={searchValue}
-                onValueChange={setSearchValue}
-                className="h-12"
-              />
-              <CommandList>
-                <CommandEmpty>No projects found.</CommandEmpty>
-                <CommandGroup>
-                  {filteredProjects.map((project) => (
-                    <CommandItem
-                      key={project.slug}
-                      onSelect={() => handleProjectSelect(project)}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <span className="font-semibold text-[--fd-primary]">
-                          {project.display}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {project.name}
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <div className="relative" ref={searchRef}>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder="What project are you looking for?"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                setIsDropdownOpen(e.target.value.trim().length > 0);
+              }}
+              onFocus={() => {
+                if (searchValue.trim().length > 0) {
+                  setIsDropdownOpen(true);
+                }
+              }}
+              className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Custom Dropdown */}
+          {shouldShowDropdown && isDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+              <div className="max-h-64 overflow-y-auto">
+                {filteredProjects.map((project) => (
+                  <div
+                    key={project.slug}
+                    className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-white/5 last:border-b-0"
+                    onClick={() => handleProjectSelect(project)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <span className="font-semibold text-[--fd-primary]">
+                        {project.display}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {project.name}
+                      </span>
+                    </div>
+                    
+                    <div className="relative">
+                      <button
+                        onClick={(e) => handleAddToWatchlist(project.slug, e)}
+                        className={`w-8 h-8 rounded-full border transition-all duration-300 flex items-center justify-center ${
+                          watchlistItems.has(project.slug)
+                            ? "bg-white text-black border-white"
+                            : "bg-[--fd-primary] text-black border-[--fd-primary] hover:bg-white hover:border-white"
+                        }`}
+                      >
+                        {watchlistItems.has(project.slug) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </button>
+                      
+                      {/* Auth Popup */}
+                      {showAuthPopup === project.slug && (
+                        <div className="absolute right-0 top-full mt-2 w-64 bg-black/95 backdrop-blur border border-white/20 rounded-lg p-3 shadow-xl z-60 animate-in slide-in-from-top-2 duration-200">
+                          <p className="text-xs text-white">
+                            Register by connecting your wallet or login with email to add projects to your watchlist.
+                          </p>
+                          <div className="flex gap-2 mt-2">
+                            <Button size="sm" className="text-xs bg-[--fd-primary] text-black hover:bg-white">
+                              Connect Wallet
+                            </Button>
+                            <Button size="sm" variant="outline" className="text-xs border-white/20 text-white hover:bg-white hover:text-black">
+                              Login with Email
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <Button
           onClick={handleSetupClaim}
