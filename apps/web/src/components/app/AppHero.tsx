@@ -77,8 +77,8 @@ export default function AppHero() {
   const filteredProjects = searchValue.trim() 
     ? MOCK_PROJECTS.filter(
         (project) =>
-          project.display.toLowerCase().includes(searchValue.toLowerCase()) ||
-          project.name.toLowerCase().includes(searchValue.toLowerCase())
+          project.display.toLowerCase().startsWith(searchValue.toLowerCase()) ||
+          project.name.toLowerCase().startsWith(searchValue.toLowerCase())
       )
     : [];
 
@@ -113,7 +113,7 @@ export default function AppHero() {
                   setIsDropdownOpen(true);
                 }
               }}
-              className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground"
+              className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full"
             />
           </div>
 
@@ -152,25 +152,27 @@ export default function AppHero() {
                         )}
                       </button>
                       
-                      {/* Auth Popup */}
-                      {showAuthPopup === project.slug && (
-                        <div className="absolute right-0 top-full mt-2 w-64 bg-black/95 backdrop-blur border border-white/20 rounded-lg p-3 shadow-xl z-60 animate-in slide-in-from-top-2 duration-200">
-                          <p className="text-xs text-white">
-                            Register by connecting your wallet or login with email to add projects to your watchlist.
-                          </p>
-                          <div className="flex gap-2 mt-2">
-                            <Button size="sm" className="text-xs bg-[--fd-primary] text-black hover:bg-white">
-                              Connect Wallet
-                            </Button>
-                            <Button size="sm" variant="outline" className="text-xs border-white/20 text-white hover:bg-white hover:text-black">
-                              Login with Email
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Auth Popup - Outside dropdown */}
+          {showAuthPopup && (
+            <div className="absolute top-full right-0 mt-2 w-80 bg-black/95 backdrop-blur border border-white/20 rounded-lg p-4 shadow-xl z-[70] animate-in slide-in-from-top-2 duration-200">
+              <p className="text-sm text-white mb-3">
+                Register by connecting your wallet or login with email to add projects to your watchlist.
+              </p>
+              <div className="flex gap-2">
+                <Button size="sm" className="text-xs bg-[--fd-primary] text-black hover:bg-white">
+                  Connect Wallet
+                </Button>
+                <Button size="sm" variant="outline" className="text-xs border-white/20 text-white hover:bg-white hover:text-black">
+                  Login with Email
+                </Button>
               </div>
             </div>
           )}
