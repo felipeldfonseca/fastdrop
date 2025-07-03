@@ -21,6 +21,7 @@ export default function AppHero() {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownRendered, setIsDropdownRendered] = useState(false);
   const [watchlistItems, setWatchlistItems] = useState<Set<string>>(new Set());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Mock auth state
@@ -28,7 +29,32 @@ export default function AppHero() {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Global keyboard shortcut for search
+  const filteredProjects = searchValue.trim()
+    ? MOCK_PROJECTS.filter(
+        (project) =>
+          project.display.toLowerCase().startsWith(searchValue.toLowerCase()) ||
+          project.name.toLowerCase().startsWith(searchValue.toLowerCase())
+      )
+    : [];
+
+  const shouldShowDropdown =
+    isSearchActive && searchValue.trim().length > 0 && filteredProjects.length > 0;
+
+  useEffect(() => {
+    setIsDropdownOpen(shouldShowDropdown);
+  }, [shouldShowDropdown]);
+
+  useEffect(() => {
+    if (shouldShowDropdown) {
+      setIsDropdownRendered(true);
+    } else {
+      const timer = setTimeout(() => {
+        setIsDropdownRendered(false);
+      }, 700); // Match retraction animation
+      return () => clearTimeout(timer);
+    }
+  }, [shouldShowDropdown]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -36,20 +62,16 @@ export default function AppHero() {
         inputRef.current?.focus();
       }
     };
-
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Close dropdown and retract search bar when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
         setIsSearchActive(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -66,25 +88,12 @@ export default function AppHero() {
 
   const handleAddToWatchlist = (projectSlug: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    
     if (!isAuthenticated) {
       setIsAuthModalOpen(true);
       return;
     }
-
-    setWatchlistItems(prev => new Set(Array.from(prev).concat(projectSlug)));
-    // Here you would also make an API call to add to actual watchlist
+    setWatchlistItems((prev) => new Set(Array.from(prev).concat(projectSlug)));
   };
-
-  const filteredProjects = searchValue.trim() 
-    ? MOCK_PROJECTS.filter(
-        (project) =>
-          project.display.toLowerCase().startsWith(searchValue.toLowerCase()) ||
-          project.name.toLowerCase().startsWith(searchValue.toLowerCase())
-      )
-    : [];
-
-  const shouldShowDropdown = searchValue.trim().length > 0 && filteredProjects.length > 0;
 
   return (
     <>
@@ -100,37 +109,54 @@ export default function AppHero() {
 
         <div className="space-y-4 max-w-xl mx-auto">
           <div className="flex justify-center">
-            <div 
+            <div
               ref={searchRef}
               className={cn(
                 "relative transition-all duration-700 ease-in-out",
                 isSearchActive ? "w-full" : "w-80"
               )}
             >
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div
+                className="relative w-full h-12 cursor-text"
+                onClick={() => inputRef.current?.focus()}
+              >
+                {/* Custom Placeholder */}
+                <div
+                  className={cn(
+                    "absolute inset-0 flex items-center justify-center gap-2 text-muted-foreground transition-opacity duration-300 pointer-events-none",
+                    isSearchActive || searchValue ? "opacity-0" : "opacity-100"
+                  )}
+                >
+                  <Search className="h-4 w-4" />
+                  <span>Search projects...</span>
+                </div>
+
+                {/* Real Input */}
+                <Search
+                  className={cn(
+                    "absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-opacity duration-300",
+                    isSearchActive ? "opacity-100" : "opacity-0"
+                  )}
+                />
                 <Input
                   ref={inputRef}
                   type="text"
-                  placeholder="What project are you looking for?"
+                  placeholder={isSearchActive ? "What project are you looking for?" : ""}
                   value={searchValue}
-                  onChange={(e) => {
-                    setSearchValue(e.target.value);
-                    setIsDropdownOpen(e.target.value.trim().length > 0);
-                  }}
-                  onFocus={() => {
-                    setIsSearchActive(true);
-                    if (searchValue.trim().length > 0) {
-                      setIsDropdownOpen(true);
-                    }
-                  }}
-                  className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full"
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onFocus={() => setIsSearchActive(true)}
+                  className="w-full h-12 pl-10 pr-4 bg-white/5 border-white/10 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-muted-foreground rounded-full outline-none focus:ring-2 focus:ring-white/20"
                 />
               </div>
 
               {/* Custom Dropdown */}
-              {shouldShowDropdown && isDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+              {isDropdownRendered && (
+                <div
+                  className={cn(
+                    "absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden origin-top transition-all duration-700 ease-in-out",
+                    isDropdownOpen ? "opacity-100 transform-none" : "opacity-0 -translate-y-2"
+                  )}
+                >
                   <div className="max-h-64 overflow-y-auto">
                     {filteredProjects.map((project) => (
                       <div
