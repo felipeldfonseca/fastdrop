@@ -159,14 +159,18 @@ export default function AppHero() {
             )}
           </div>
 
-          <Button
-            onClick={handleSetupClaim}
-            variant="secondary"
-            size="lg"
-            className="w-full sm:w-auto"
-          >
-            Set up your claim
-          </Button>
+          <div className="text-center pt-8 space-y-4">
+            <h3 className="text-lg font-medium text-white/80">
+              Airdrop incoming soon?
+            </h3>
+            <Button
+              onClick={handleSetupClaim}
+              size="lg"
+              className="w-full sm:w-auto rounded-full bg-[--fd-primary] text-black hover:bg-white shadow-lg transition-colors"
+            >
+              Set up your claim
+            </Button>
+          </div>
         </div>
       </div>
       
