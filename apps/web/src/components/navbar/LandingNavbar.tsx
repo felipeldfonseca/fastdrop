@@ -30,6 +30,8 @@ export default function LandingNavbar() {
         const activeItem = document.querySelector(`[href="${pathname}"]`) as HTMLElement;
         const underline = document.getElementById('nav-underline');
         if (activeItem && underline) {
+          // Set initial transition duration
+          underline.style.transitionDuration = '600ms';
           const rect = activeItem.getBoundingClientRect();
           const parent = activeItem.parentElement?.getBoundingClientRect();
           if (parent) {
@@ -62,10 +64,12 @@ export default function LandingNavbar() {
             <div 
               className="hidden md:flex items-center space-x-8 relative"
               onMouseLeave={() => {
-                // Return to active page position when leaving the entire nav area
+                // Slower return to active page position when leaving the entire nav area
                 const activeItem = document.querySelector(`[href="${pathname}"]`) as HTMLElement;
                 const underline = document.getElementById('nav-underline');
                 if (activeItem && underline) {
+                  // Slower transition for return to default
+                  underline.style.transitionDuration = '600ms';
                   const rect = activeItem.getBoundingClientRect();
                   const parent = activeItem.parentElement?.getBoundingClientRect();
                   if (parent) {
@@ -78,7 +82,7 @@ export default function LandingNavbar() {
               }}
             >
               {/* Animated underline */}
-              <div className="absolute bottom-0 h-0.5 bg-[--brand-accent] transition-all duration-300 ease-out opacity-100" id="nav-underline"></div>
+              <div className="absolute bottom-0 h-0.5 bg-[--brand-accent] transition-all ease-out opacity-100" id="nav-underline"></div>
               
               {navigation.map((item, index) => (
                 <Link
@@ -98,25 +102,12 @@ export default function LandingNavbar() {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const parent = e.currentTarget.parentElement?.getBoundingClientRect();
                     if (underline && parent) {
+                      // Fast transition for button-to-button movement
+                      underline.style.transitionDuration = '300ms';
                       const left = rect.left - parent.left;
                       const width = rect.width;
                       underline.style.left = `${left}px`;
                       underline.style.width = `${width}px`;
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    // Return to active page position
-                    const activeItem = document.querySelector(`[href="${pathname}"]`) as HTMLElement;
-                    const underline = document.getElementById('nav-underline');
-                    if (activeItem && underline) {
-                      const rect = activeItem.getBoundingClientRect();
-                      const parent = activeItem.parentElement?.getBoundingClientRect();
-                      if (parent) {
-                        const left = rect.left - parent.left;
-                        const width = rect.width;
-                        underline.style.left = `${left}px`;
-                        underline.style.width = `${width}px`;
-                      }
                     }
                   }}
                 >
