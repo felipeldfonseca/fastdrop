@@ -112,7 +112,7 @@ export default function AppHero() {
                 <Input
                   ref={inputRef}
                   type="text"
-                  placeholder={isSearchActive ? "What project are you looking for?" : "Search projects..."}
+                  placeholder="What project are you looking for?"
                   value={searchValue}
                   onChange={(e) => {
                     setSearchValue(e.target.value);
