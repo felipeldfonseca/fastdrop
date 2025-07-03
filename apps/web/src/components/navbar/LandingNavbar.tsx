@@ -79,7 +79,7 @@ export default function LandingNavbar() {
         <div className="flex-shrink-0">
           {isAppPage ? (
             // Connect wallet button for app pages
-            <Button className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg bg-[--brand-accent] text-black hover:bg-transparent hover:text-[--brand-accent] border border-[--brand-accent]">
+            <Button className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg bg-[--brand-accent] text-black hover:bg-white hover:text-[--brand-accent] border border-[--brand-accent]">
               Connect
             </Button>
           ) : (
