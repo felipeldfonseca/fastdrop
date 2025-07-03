@@ -1,3 +1,4 @@
+import AppNavbar from "@/components/navbar/AppNavbar";
 import Footer from "@/components/landing/Footer";
 
 export default function AppLayout({
@@ -7,7 +8,8 @@ export default function AppLayout({
 }) {
   return (
     <div className="min-h-screen bg-[--brand-bg] text-[--brand-fg]">
-      <main className="py-8 pt-24">
+      <AppNavbar />
+      <main className="py-8">
         {children}
       </main>
       <Footer />
