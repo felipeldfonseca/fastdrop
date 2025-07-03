@@ -55,7 +55,7 @@ export default function AuthModal({
       ></div>
       
       {/* Modal Content */}
-      <div className={`relative bg-black/80 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl w-full max-w-md m-4 p-8 transition-all ${isOpen ? 'duration-300 opacity-100 transform-none' : 'duration-500 opacity-0 scale-95'}`}>
+      <div className={`relative bg-black/80 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl w-full max-w-md m-4 p-8 transition-all ${isOpen ? 'duration-300 opacity-100 transform-none' : 'duration-400 opacity-0 scale-95'}`}>
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
@@ -88,7 +88,7 @@ export default function AuthModal({
               handleClose();
             }}
             variant="outline"
-            className="w-full rounded-full px-4 py-3 text-base font-semibold border-white/20 text-white hover:bg-[--fd-primary] hover:text-black hover:border-[--fd-primary]"
+            className="w-full rounded-full px-4 py-3 text-base font-semibold border-white/20 text-white hover:bg-white hover:text-black"
           >
             Register/Login with Email
           </Button>
