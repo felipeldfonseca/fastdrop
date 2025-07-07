@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import "./globals.css";
-import LandingNavbar from "@/components/navbar/LandingNavbar";
-import Footer from "@/components/landing/Footer";
 import "@/styles/landing.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,11 +19,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} ${sora.variable}`}>
+<<<<<<< HEAD
         <div className="bg-[--brand-bg] text-[--brand-fg]">
           <LandingNavbar />
           <main className="mx-auto max-w-6xl px-6">{children}</main>
           <Footer />
         </div>
+=======
+        {children}
+>>>>>>> main
       </body>
     </html>
   );
