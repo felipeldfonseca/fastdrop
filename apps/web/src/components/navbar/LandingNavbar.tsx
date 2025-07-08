@@ -67,12 +67,15 @@ export default function LandingNavbar() {
       const navItems = navContainer.querySelectorAll('.nav-item');
       if (navItems.length === 0) return;
 
+      // Animate underline out to the left
+      setUnderlineStyle(s => ({ ...s, opacity: 0, left: s.left - 20 }));
+
       navItems.forEach((item, index) => {
         const element = item as HTMLElement;
         const delay = (navItems.length - 1 - index) * 80;
         element.style.transition = `opacity 300ms, transform 300ms`;
         element.style.transitionDelay = `${delay}ms`;
-        element.style.transform = 'translateX(20px)';
+        element.style.transform = 'translateX(-20px)';
         element.style.opacity = '0';
       });
 
@@ -85,22 +88,26 @@ export default function LandingNavbar() {
     }
   }, [isLargeScreen]);
 
-  // Effect for the initial "active" underline
+  // Effect for the "active" underline position
   useEffect(() => {
-    const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
-    if (activeItem && isLargeScreen) {
-      const rect = activeItem.getBoundingClientRect();
-      const parent = navContainerRef.current?.getBoundingClientRect();
-      if (parent) {
-        setUnderlineStyle({
-          left: rect.left - parent.left,
-          width: rect.width,
-          opacity: 1
-        });
+    const timer = setTimeout(() => {
+      const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
+      if (activeItem && isLargeScreen) {
+        const rect = activeItem.getBoundingClientRect();
+        const parent = navContainerRef.current?.getBoundingClientRect();
+        if (parent) {
+          setUnderlineStyle({
+            left: rect.left - parent.left,
+            width: rect.width,
+            opacity: 1
+          });
+        }
+      } else {
+        setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
       }
-    } else {
-      setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
-    }
+    }, 50); // Small delay to wait for layout to stabilize
+
+    return () => clearTimeout(timer);
   }, [pathname, isLargeScreen]);
 
   return (
@@ -171,7 +178,7 @@ export default function LandingNavbar() {
                       ? "text-[--brand-accent]"
                       : "text-[--brand-fg] hover:text-[--brand-accent]"
                   )}
-                  style={{ opacity: 0 }} // Start with opacity 0 for fade-in
+                  style={{ opacity: 0, transform: 'translateX(20px)' }} // Start off-screen to the right
                   target={item.external ? "_blank" : undefined}
                   rel={item.external ? "noopener noreferrer" : undefined}
                   onMouseEnter={(e) => {
