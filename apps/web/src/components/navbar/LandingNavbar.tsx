@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import { useDebouncedCallback } from "use-debounce";
 import { Button } from "@repo/ui/button";
 import { Menu } from "lucide-react";
 import { cn } from "@repo/ui/utils";
@@ -26,35 +25,37 @@ export default function LandingNavbar() {
   const pathname = usePathname();
   const isAppPage = pathname.startsWith("/app") || pathname.startsWith("/claim") || pathname.startsWith("/watchlist") || pathname.startsWith("/news");
   const navigation = isAppPage ? appNavigation : landingNavigation;
+  
+  const [hasMounted, setHasMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const navContainerRef = useRef<HTMLDivElement>(null);
 
-  // Debounced resize handler
-  const handleResize = useDebouncedCallback(() => {
-    setIsLargeScreen(window.innerWidth >= 1024);
-  }, 150);
-  
-  // Set initial size and add resize listener
+  // Set mounted state and initial screen size
   useEffect(() => {
+    setHasMounted(true);
+    
+    const handleResize = () => setIsLargeScreen(window.innerWidth >= 1024);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [handleResize]);
+  }, []);
   
-  // Animation logic reacting to isLargeScreen state change
+  // Animation and underline logic
   useEffect(() => {
+    if (!hasMounted) return; // Don't run animations until mounted
+
     const navContainer = navContainerRef.current;
     if (!navContainer) return;
 
     if (isLargeScreen) {
-      // Transition to Desktop: Animate nav items in
       navContainer.style.display = 'flex';
       setMobileMenuOpen(false);
 
-      const navItems = navContainer.querySelectorAll('.nav-item');
-      navItems?.forEach((item, index) => {
+      const navItems = Array.from(navContainer.querySelectorAll('.nav-item'));
+      
+      navItems.forEach((item, index) => {
         const element = item as HTMLElement;
         element.style.transition = 'opacity 300ms, transform 300ms';
         element.style.transitionDelay = `${index * 80}ms`;
@@ -62,12 +63,28 @@ export default function LandingNavbar() {
         element.style.opacity = '1';
       });
 
+      const totalAnimationTime = (navItems.length - 1) * 80 + 300;
+      const underlineTimer = setTimeout(() => {
+        const activeItem = navContainer.querySelector(`[href="${pathname}"]`) as HTMLElement;
+        if (activeItem) {
+          const rect = activeItem.getBoundingClientRect();
+          const parent = navContainer.getBoundingClientRect();
+          setUnderlineStyle({
+            left: rect.left - parent.left,
+            width: rect.width,
+            opacity: 1
+          });
+        } else {
+          setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
+        }
+      }, totalAnimationTime);
+
+      return () => clearTimeout(underlineTimer);
+
     } else {
-      // Transition to Mobile: Animate nav items out
-      const navItems = navContainer.querySelectorAll('.nav-item');
+      const navItems = Array.from(navContainer.querySelectorAll('.nav-item'));
       if (navItems.length === 0) return;
 
-      // Animate underline out to the left
       setUnderlineStyle(s => ({ ...s, opacity: 0, left: s.left - 20 }));
 
       navItems.forEach((item, index) => {
@@ -80,43 +97,26 @@ export default function LandingNavbar() {
       });
 
       const totalAnimationTime = (navItems.length - 1) * 80 + 300;
-      setTimeout(() => {
+      const hideTimer = setTimeout(() => {
         if (navContainerRef.current) {
           navContainerRef.current.style.display = 'none';
         }
       }, totalAnimationTime);
+
+      return () => clearTimeout(hideTimer);
     }
-  }, [isLargeScreen]);
+  }, [isLargeScreen, pathname, hasMounted]);
 
-  // Effect for the "active" underline position
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
-      if (activeItem && isLargeScreen) {
-        const rect = activeItem.getBoundingClientRect();
-        const parent = navContainerRef.current?.getBoundingClientRect();
-        if (parent) {
-          setUnderlineStyle({
-            left: rect.left - parent.left,
-            width: rect.width,
-            opacity: 1
-          });
-        }
-      } else {
-        setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
-      }
-    }, 50); // Small delay to wait for layout to stabilize
-
-    return () => clearTimeout(timer);
-  }, [pathname, isLargeScreen]);
+  // Render a placeholder on the server and initial client render to avoid hydration mismatch
+  if (!hasMounted) {
+    return <header className="h-16" />;
+  }
 
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 backdrop-blur border-b border-white/10">
         <nav className="mx-auto flex h-16 max-w-6xl items-center px-6 text-sm text-[--brand-fg]">
-          {/* Left section - Hamburger + Logo */}
           <div className="flex items-center space-x-4">
-            {/* Hamburger Menu Button - Left side for mobile */}
             {(isAppPage || navigation.length > 0) && !isLargeScreen && (
               <button
                 className="p-2 rounded-md hover:bg-white/10 transition-colors"
@@ -128,7 +128,6 @@ export default function LandingNavbar() {
               </button>
             )}
             
-            {/* Logo */}
             <div className="flex-shrink-0">
               <Link href="/" className="font-black tracking-tight text-lg">
                 Fast<span className="text-[--brand-accent]">Drop</span>
@@ -136,7 +135,6 @@ export default function LandingNavbar() {
             </div>
           </div>
 
-          {/* Navigation items - Centered */}
           <div className="flex-1 flex justify-center">
             <div
               ref={navContainerRef}
@@ -158,7 +156,6 @@ export default function LandingNavbar() {
                 }
               }}
             >
-              {/* Animated underline */}
               <div
                 className="absolute bottom-0 h-0.5 bg-[--brand-accent] transition-all"
                 id="nav-underline"
@@ -178,7 +175,7 @@ export default function LandingNavbar() {
                       ? "text-[--brand-accent]"
                       : "text-[--brand-fg] hover:text-[--brand-accent]"
                   )}
-                  style={{ opacity: 0, transform: 'translateX(20px)' }} // Start off-screen to the right
+                  style={{ opacity: 0, transform: 'translateX(20px)' }}
                   target={item.external ? "_blank" : undefined}
                   rel={item.external ? "noopener noreferrer" : undefined}
                   onMouseEnter={(e) => {
@@ -199,15 +196,12 @@ export default function LandingNavbar() {
             </div>
           </div>
 
-          {/* Action button - Right side */}
           <div className="flex-shrink-0">
             {isAppPage ? (
-              // Connect wallet button for app pages
               <Button className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg bg-[--brand-accent] text-black hover:bg-white hover:text-black border border-[--brand-accent]">
                 Connect
               </Button>
             ) : (
-              // Launch App button for landing page
               <Button asChild className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg">
                 <Link href="/app">Launch App</Link>
               </Button>
@@ -215,8 +209,7 @@ export default function LandingNavbar() {
           </div>
         </nav>
       </header>
-
-      {/* Mobile Navigation */}
+      
       {(isAppPage || navigation.length > 0) && (
         <MobileNav 
           open={mobileMenuOpen} 
