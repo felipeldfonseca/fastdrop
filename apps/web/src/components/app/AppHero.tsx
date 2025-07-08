@@ -210,11 +210,7 @@ export default function AppHero() {
             <Button
               onClick={handleSetupClaim}
               size="lg"
-<<<<<<< HEAD
               className="w-full sm:w-auto rounded-full bg-[--fd-primary] text-black hover:bg-white shadow-lg transition-colors text-lg font-semibold"
-=======
-              className="rounded-full bg-[--fd-primary] text-black hover:bg-white shadow-lg transition-colors text-lg font-semibold"
->>>>>>> main
             >
               Set up your claim
             </Button>
