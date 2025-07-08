@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@repo/ui/button";
 import { Menu } from "lucide-react";
 import { cn } from "@repo/ui/utils";
 import MobileNav from "./MobileNav";
 
 const landingNavigation = [
+  { name: "About", href: "/", external: false },
   { name: "Docs", href: "https://github.com/your-org/fast-drop", external: true },
 ];
 
@@ -28,6 +29,7 @@ export default function LandingNavbar() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const navContainerRef = useRef<HTMLDivElement>(null);
 
   // Window resize detection and animation trigger
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function LandingNavbar() {
       setIsLargeScreen(isLarge);
       
       // Trigger animation when transitioning from mobile to desktop
-      if (isLarge && wasSmall && isAppPage) {
+      if (isLarge && wasSmall) {
         setIsAnimating(true);
         setMobileMenuOpen(false); // Close drawer smoothly
 
@@ -97,12 +99,12 @@ export default function LandingNavbar() {
 
   // Initialize underline position on mount and pathname change
   useEffect(() => {
-    if (isAppPage && !isAnimating) {
+    if (!isAnimating) {
       const timer = setTimeout(() => {
-        const activeItem = document.querySelector(`[href="${pathname}"]`) as HTMLElement;
+        const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
         if (activeItem) {
           const rect = activeItem.getBoundingClientRect();
-          const parent = activeItem.parentElement?.getBoundingClientRect();
+          const parent = navContainerRef.current?.getBoundingClientRect();
           if (parent) {
             setUnderlineStyle({
               left: rect.left - parent.left,
@@ -110,12 +112,14 @@ export default function LandingNavbar() {
               opacity: 1
             });
           }
+        } else {
+          setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
         }
       }, 100); // Small delay to ensure DOM is ready
       
       return () => clearTimeout(timer);
     }
-  }, [pathname, isAppPage, isAnimating]);
+  }, [pathname, isAnimating]);
 
   return (
     <>
@@ -145,29 +149,30 @@ export default function LandingNavbar() {
 
           {/* Navigation items - Centered */}
           <div className="flex-1 flex justify-center">
-            {isAppPage ? (
-              // App navigation items with animated underline
-              <div 
-                className="hidden lg:flex items-center space-x-8 relative"
-                onMouseLeave={() => {
-                  if (!isAnimating) {
-                    const activeItem = document.querySelector(`[href="${pathname}"]`) as HTMLElement;
-                    if (activeItem) {
-                      const rect = activeItem.getBoundingClientRect();
-                      const parent = activeItem.parentElement?.getBoundingClientRect();
-                      if (parent) {
-                        setUnderlineStyle({
-                          left: rect.left - parent.left,
-                          width: rect.width,
-                          opacity: 1,
-                        });
-                      }
+            <div
+              ref={navContainerRef}
+              className="hidden lg:flex items-center space-x-8 relative"
+              onMouseLeave={() => {
+                if (!isAnimating) {
+                  const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
+                  if (activeItem) {
+                    const rect = activeItem.getBoundingClientRect();
+                    const parent = navContainerRef.current?.getBoundingClientRect();
+                    if (parent) {
+                      setUnderlineStyle({
+                        left: rect.left - parent.left,
+                        width: rect.width,
+                        opacity: 1,
+                      });
                     }
+                  } else {
+                    setUnderlineStyle(s => ({ ...s, opacity: 0 }));
                   }
-                }}
-              >
-                              {/* Animated underline */}
-              <div 
+                }
+              }}
+            >
+              {/* Animated underline */}
+              <div
                 className="absolute bottom-0 h-0.5 bg-[--brand-accent] transition-all"
                 id="nav-underline"
                 style={{
@@ -175,7 +180,7 @@ export default function LandingNavbar() {
                   transition: 'left 600ms, width 600ms',
                 }}
               ></div>
-              
+
               {navigation.map((item, index) => (
                 <Link
                   key={item.name}
@@ -197,7 +202,7 @@ export default function LandingNavbar() {
                   onMouseEnter={(e) => {
                     if (!isAnimating) {
                       const rect = e.currentTarget.getBoundingClientRect();
-                      const parent = e.currentTarget.parentElement?.getBoundingClientRect();
+                      const parent = navContainerRef.current?.getBoundingClientRect();
                       if (parent) {
                         setUnderlineStyle({
                           left: rect.left - parent.left,
@@ -214,23 +219,7 @@ export default function LandingNavbar() {
                   )}
                 </Link>
               ))}
-              </div>
-            ) : (
-              // Landing page navigation items
-              <div className="hidden lg:flex items-center">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="hover:text-[--brand-accent-2]"
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noopener noreferrer" : undefined}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Action button - Right side */}
