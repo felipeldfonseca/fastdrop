@@ -27,6 +27,7 @@ export default function LandingNavbar() {
   const navigation = isAppPage ? appNavigation : landingNavigation;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const navContainerRef = useRef<HTMLDivElement>(null);
@@ -41,11 +42,25 @@ export default function LandingNavbar() {
       
       // Trigger animation when transitioning from mobile to desktop
       if (isLarge && wasSmall) {
+        setIsResizing(true);
         setIsAnimating(true);
         setMobileMenuOpen(false); // Close drawer smoothly
 
-        // Hide underline before starting animations
-        setUnderlineStyle(s => ({ ...s, opacity: 0 }));
+        // Pre-position the underline at its destination, but keep it hidden
+        const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
+        if (activeItem) {
+          const rect = activeItem.getBoundingClientRect();
+          const parent = navContainerRef.current?.getBoundingClientRect();
+          if (parent) {
+            setUnderlineStyle({
+              left: rect.left - parent.left,
+              width: rect.width,
+              opacity: 0,
+            });
+          }
+        } else {
+          setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
+        }
         
         // Start the wipe-in animation with staggered delays
         setTimeout(() => {
@@ -58,21 +73,11 @@ export default function LandingNavbar() {
             element.style.opacity = '1';
           });
           
-          // Phase 2: Underline Grow animation after buttons appear
-          const totalButtonAnimationTime = (navItems.length - 1) * 60 + 300;
+          // Phase 2: Underline Fade-in animation after buttons appear
+          const totalButtonAnimationTime = (navigation.length - 1) * 60 + 300;
           setTimeout(() => {
-            const activeItem = document.querySelector(`[href="${pathname}"]`) as HTMLElement;
-            if (activeItem) {
-              const rect = activeItem.getBoundingClientRect();
-              const parent = activeItem.parentElement?.getBoundingClientRect();
-              if (parent) {
-                setUnderlineStyle({
-                  left: rect.left - parent.left,
-                  width: rect.width,
-                  opacity: 1,
-                });
-              }
-            }
+            // Just fade in the underline; it's already in the right place.
+            setUnderlineStyle(s => ({ ...s, opacity: 1 }));
           }, totalButtonAnimationTime);
 
         }, 50); // Small delay to ensure DOM is updated
@@ -81,6 +86,7 @@ export default function LandingNavbar() {
         const totalAnimationTime = (navigation.length - 1) * 60 + 300 + 200; // buttons + underline
         setTimeout(() => {
           setIsAnimating(false);
+          setIsResizing(false);
           const navItems = document.querySelectorAll('.nav-item');
           navItems.forEach((item) => {
             const element = item as HTMLElement;
@@ -95,7 +101,7 @@ export default function LandingNavbar() {
     
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, [isLargeScreen, mobileMenuOpen, isAppPage, pathname, navigation.length]);
+  }, [isLargeScreen, mobileMenuOpen, pathname, navigation.length]);
 
   // Initialize underline position on mount and pathname change
   useEffect(() => {
@@ -177,7 +183,9 @@ export default function LandingNavbar() {
                 id="nav-underline"
                 style={{
                   ...underlineStyle,
-                  transition: 'left 600ms, width 600ms',
+                  transition: isResizing
+                    ? 'opacity 300ms'
+                    : 'left 600ms, width 600ms',
                 }}
               ></div>
 
