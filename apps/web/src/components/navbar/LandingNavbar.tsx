@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { Button } from "@repo/ui/button";
 import { Menu } from "lucide-react";
 import { cn } from "@repo/ui/utils";
@@ -26,106 +27,81 @@ export default function LandingNavbar() {
   const isAppPage = pathname.startsWith("/app") || pathname.startsWith("/claim") || pathname.startsWith("/watchlist") || pathname.startsWith("/news");
   const navigation = isAppPage ? appNavigation : landingNavigation;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
   const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const navContainerRef = useRef<HTMLDivElement>(null);
 
-  // Window resize detection and animation trigger
+  // Debounced resize handler
+  const handleResize = useDebouncedCallback(() => {
+    setIsLargeScreen(window.innerWidth >= 1024);
+  }, 150);
+  
+  // Set initial size and add resize listener
   useEffect(() => {
-    const checkScreenSize = () => {
-      const isLarge = window.innerWidth >= 1024;
-      const wasSmall = !isLargeScreen;
-      
-      setIsLargeScreen(isLarge);
-      
-      // Trigger animation when transitioning from mobile to desktop
-      if (isLarge && wasSmall) {
-        setIsResizing(true);
-        setIsAnimating(true);
-        setMobileMenuOpen(false); // Close drawer smoothly
-
-        // Pre-position the underline at its destination, but keep it hidden
-        const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
-        if (activeItem) {
-          const rect = activeItem.getBoundingClientRect();
-          const parent = navContainerRef.current?.getBoundingClientRect();
-          if (parent) {
-            setUnderlineStyle({
-              left: rect.left - parent.left,
-              width: rect.width,
-              opacity: 0,
-            });
-          }
-        } else {
-          setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
-        }
-        
-        // Start the wipe-in animation with staggered delays
-        setTimeout(() => {
-          const navItems = document.querySelectorAll('.nav-item');
-          
-          navItems.forEach((item, index) => {
-            const element = item as HTMLElement;
-            element.style.transitionDelay = `${index * 60}ms`;
-            element.style.transform = 'translateX(0)';
-            element.style.opacity = '1';
-          });
-          
-          // Phase 2: Underline Fade-in animation after buttons appear
-          const totalButtonAnimationTime = (navigation.length - 1) * 60 + 300;
-          setTimeout(() => {
-            // Just fade in the underline; it's already in the right place.
-            setUnderlineStyle(s => ({ ...s, opacity: 1 }));
-          }, totalButtonAnimationTime);
-
-        }, 50); // Small delay to ensure DOM is updated
-        
-        // Reset animation state after completion
-        const totalAnimationTime = (navigation.length - 1) * 60 + 300 + 200; // buttons + underline
-        setTimeout(() => {
-          setIsAnimating(false);
-          setIsResizing(false);
-          const navItems = document.querySelectorAll('.nav-item');
-          navItems.forEach((item) => {
-            const element = item as HTMLElement;
-            element.style.transitionDelay = '0ms';
-          });
-        }, totalAnimationTime);
-      }
-    };
-
-    // Set initial state
-    checkScreenSize();
-    
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, [isLargeScreen, mobileMenuOpen, pathname, navigation.length]);
-
-  // Initialize underline position on mount and pathname change
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
+  
+  // Animation logic reacting to isLargeScreen state change
   useEffect(() => {
-    if (!isAnimating) {
-      const timer = setTimeout(() => {
-        const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
-        if (activeItem) {
-          const rect = activeItem.getBoundingClientRect();
-          const parent = navContainerRef.current?.getBoundingClientRect();
-          if (parent) {
-            setUnderlineStyle({
-              left: rect.left - parent.left,
-              width: rect.width,
-              opacity: 1
-            });
-          }
-        } else {
-          setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
+    const navContainer = navContainerRef.current;
+    if (!navContainer) return;
+
+    if (isLargeScreen) {
+      // Transition to Desktop: Animate nav items in
+      navContainer.style.display = 'flex';
+      setMobileMenuOpen(false);
+
+      const navItems = navContainer.querySelectorAll('.nav-item');
+      navItems?.forEach((item, index) => {
+        const element = item as HTMLElement;
+        element.style.transition = 'opacity 300ms, transform 300ms';
+        element.style.transitionDelay = `${index * 80}ms`;
+        element.style.transform = 'translateX(0)';
+        element.style.opacity = '1';
+      });
+
+    } else {
+      // Transition to Mobile: Animate nav items out
+      const navItems = navContainer.querySelectorAll('.nav-item');
+      if (navItems.length === 0) return;
+
+      navItems.forEach((item, index) => {
+        const element = item as HTMLElement;
+        const delay = (navItems.length - 1 - index) * 80;
+        element.style.transition = `opacity 300ms, transform 300ms`;
+        element.style.transitionDelay = `${delay}ms`;
+        element.style.transform = 'translateX(20px)';
+        element.style.opacity = '0';
+      });
+
+      const totalAnimationTime = (navItems.length - 1) * 80 + 300;
+      setTimeout(() => {
+        if (navContainerRef.current) {
+          navContainerRef.current.style.display = 'none';
         }
-      }, 100); // Small delay to ensure DOM is ready
-      
-      return () => clearTimeout(timer);
+      }, totalAnimationTime);
     }
-  }, [pathname, isAnimating]);
+  }, [isLargeScreen]);
+
+  // Effect for the initial "active" underline
+  useEffect(() => {
+    const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
+    if (activeItem && isLargeScreen) {
+      const rect = activeItem.getBoundingClientRect();
+      const parent = navContainerRef.current?.getBoundingClientRect();
+      if (parent) {
+        setUnderlineStyle({
+          left: rect.left - parent.left,
+          width: rect.width,
+          opacity: 1
+        });
+      }
+    } else {
+      setUnderlineStyle({ left: 0, width: 0, opacity: 0 });
+    }
+  }, [pathname, isLargeScreen]);
 
   return (
     <>
@@ -134,9 +110,9 @@ export default function LandingNavbar() {
           {/* Left section - Hamburger + Logo */}
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Button - Left side for mobile */}
-            {(isAppPage || navigation.length > 0) && (
+            {(isAppPage || navigation.length > 0) && !isLargeScreen && (
               <button
-                className="lg:hidden p-2 rounded-md hover:bg-white/10 transition-colors"
+                className="p-2 rounded-md hover:bg-white/10 transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
                 aria-label="Open menu"
                 aria-expanded={mobileMenuOpen}
@@ -157,23 +133,21 @@ export default function LandingNavbar() {
           <div className="flex-1 flex justify-center">
             <div
               ref={navContainerRef}
-              className="hidden lg:flex items-center space-x-8 relative"
+              className="flex items-center space-x-8 relative"
               onMouseLeave={() => {
-                if (!isAnimating) {
-                  const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
-                  if (activeItem) {
-                    const rect = activeItem.getBoundingClientRect();
-                    const parent = navContainerRef.current?.getBoundingClientRect();
-                    if (parent) {
-                      setUnderlineStyle({
-                        left: rect.left - parent.left,
-                        width: rect.width,
-                        opacity: 1,
-                      });
-                    }
-                  } else {
-                    setUnderlineStyle(s => ({ ...s, opacity: 0 }));
+                const activeItem = navContainerRef.current?.querySelector(`[href="${pathname}"]`) as HTMLElement;
+                if (activeItem) {
+                  const rect = activeItem.getBoundingClientRect();
+                  const parent = navContainerRef.current?.getBoundingClientRect();
+                  if (parent) {
+                    setUnderlineStyle({
+                      left: rect.left - parent.left,
+                      width: rect.width,
+                      opacity: 1,
+                    });
                   }
+                } else {
+                  setUnderlineStyle(s => ({ ...s, opacity: 0 }));
                 }
               }}
             >
@@ -183,13 +157,11 @@ export default function LandingNavbar() {
                 id="nav-underline"
                 style={{
                   ...underlineStyle,
-                  transition: isResizing
-                    ? 'opacity 300ms'
-                    : 'left 600ms, width 600ms',
+                  transition: 'left 300ms, width 300ms, opacity 300ms',
                 }}
               ></div>
 
-              {navigation.map((item, index) => (
+              {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -199,32 +171,22 @@ export default function LandingNavbar() {
                       ? "text-[--brand-accent]"
                       : "text-[--brand-fg] hover:text-[--brand-accent]"
                   )}
-                  style={{
-                    transform: isAnimating ? 'translateX(-20px)' : 'translateX(0)',
-                    opacity: isAnimating ? 0 : 1,
-                    transition: 'transform 300ms linear, opacity 300ms linear',
-                  }}
+                  style={{ opacity: 0 }} // Start with opacity 0 for fade-in
                   target={item.external ? "_blank" : undefined}
                   rel={item.external ? "noopener noreferrer" : undefined}
-                  data-index={index}
                   onMouseEnter={(e) => {
-                    if (!isAnimating) {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const parent = navContainerRef.current?.getBoundingClientRect();
-                      if (parent) {
-                        setUnderlineStyle({
-                          left: rect.left - parent.left,
-                          width: rect.width,
-                          opacity: 1,
-                        });
-                      }
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const parent = navContainerRef.current?.getBoundingClientRect();
+                    if (parent) {
+                      setUnderlineStyle({
+                        left: rect.left - parent.left,
+                        width: rect.width,
+                        opacity: 1
+                      });
                     }
                   }}
                 >
                   {item.name}
-                  {item.name === "News" && (
-                    <span className="ml-1 h-2 w-2 bg-[--brand-accent] rounded-full animate-pulse" />
-                  )}
                 </Link>
               ))}
             </div>
