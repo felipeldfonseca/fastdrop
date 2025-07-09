@@ -63,7 +63,7 @@ const steps = [
 const HowItWorks = () => {
   return (
     <section id="how-it-works" className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
+      <div className="mx-auto max-w-4xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-[--brand-fg] sm:text-4xl">
             How It Works
@@ -72,7 +72,7 @@ const HowItWorks = () => {
             In three simple steps, go from chasing airdrops to cashing them out the moment they launch.
           </p>
         </div>
-        <div className="mt-16 space-y-16">
+        <div className="mx-auto mt-16 max-w-4xl space-y-16">
           {steps.map((step, index) => (
             <div
               key={step.title}
