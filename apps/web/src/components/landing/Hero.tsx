@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Hero = () => {
   return (
-    <section className="flex min-h-[80vh] flex-col items-center justify-center gap-6 text-center">
+    <section className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
       <h1 className="max-w-4xl text-4xl font-black leading-[2] sm:text-6xl">
         <span className="text-[--brand-accent]">Claim the airdrop</span>
         <br />
