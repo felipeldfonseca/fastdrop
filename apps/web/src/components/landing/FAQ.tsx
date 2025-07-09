@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from 'react';
+import { Plus, Minus } from 'lucide-react';
+
 const faqs = [
   {
     question: "Is my private key safe?",
@@ -17,18 +22,44 @@ const faqs = [
 ];
 
 const FAQ = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <section id="faq" className="py-24 sm:py-32">
       <div className="mx-auto max-w-4xl px-6 text-center lg:px-8">
         <h2 className="text-3xl font-bold">Frequently Asked Questions</h2>
       </div>
       <div className="mx-auto mt-12 max-w-4xl px-6 lg:px-8">
-        <dl className="space-y-8">
-          {faqs.map((faq) => (
-            <div key={faq.question}>
-              <dt className="text-lg font-semibold leading-7">{faq.question}</dt>
-              <dd className="mt-2 text-base leading-7 text-[--brand-muted]">
-                {faq.answer}
+        <dl className="space-y-6 divide-y divide-white/10">
+          {faqs.map((faq, index) => (
+            <div key={faq.question} className="pt-6">
+              <dt>
+                <button
+                  onClick={() => toggleFAQ(index)}
+                  className="flex w-full items-start justify-between text-left"
+                >
+                  <span className="text-lg font-semibold leading-7">{faq.question}</span>
+                  <span className="ml-6 flex h-7 items-center">
+                    {openIndex === index ? (
+                      <Minus className="h-6 w-6" aria-hidden="true" />
+                    ) : (
+                      <Plus className="h-6 w-6" aria-hidden="true" />
+                    )}
+                  </span>
+                </button>
+              </dt>
+              <dd
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  openIndex === index ? 'max-h-96 mt-4' : 'max-h-0'
+                }`}
+              >
+                <p className="text-base leading-7 text-[--brand-muted]">
+                  {faq.answer}
+                </p>
               </dd>
             </div>
           ))}
