@@ -198,11 +198,13 @@ export default function LandingNavbar() {
 
           <div className="flex-shrink-0">
             {isAppPage ? (
+              // Connect wallet button for app pages
               <Button className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg bg-[--brand-accent] text-black hover:bg-white hover:text-black border border-[--brand-accent]">
                 Connect
               </Button>
             ) : (
-              <Button asChild className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg">
+              // Launch App button for landing page
+              <Button asChild className="rounded-full px-4 py-2 text-sm font-semibold shadow-lg bg-[--brand-accent] text-black hover:bg-white hover:text-black border border-[--brand-accent]">
                 <Link href="/app">Launch App</Link>
               </Button>
             )}

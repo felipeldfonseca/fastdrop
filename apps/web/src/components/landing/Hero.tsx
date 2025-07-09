@@ -1,5 +1,6 @@
 import { Button } from "@repo/ui/button";
 import { PlayIcon } from "lucide-react";
+import Link from "next/link";
 
 const Hero = () => {
   return (
@@ -17,9 +18,11 @@ const Hero = () => {
         profits, not the bag-holders.
       </p>
       <div className="flex gap-4">
-        <Button size="lg" className="rounded-full px-8 py-4">
-          Get Early Access
-        </Button>
+        <Link href="/app">
+          <Button size="lg" className="rounded-full px-8 py-4 bg-[--brand-accent] text-black hover:bg-white hover:text-black border border-[--brand-accent] font-bold">
+            Get Early Access
+          </Button>
+        </Link>
         <button className="flex items-center gap-2 text-[--brand-muted] hover:text-[--brand-fg]">
           <PlayIcon className="h-5 w-5" /> Watch Demo
         </button>
