@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="mx-auto max-w-6xl px-6 py-12 text-xs text-[--brand-muted]">
       <div className="flex flex-col items-center gap-4">
-        <div className="flex gap-4">
+        <div className="flex gap-8">
           <Link href="#" className="hover:text-[--brand-fg]">
             Twitter
           </Link>
