@@ -8,12 +8,22 @@ const Image1 = () => (
   </svg>
 );
 
-// An abstract representation of a wallet
+// An abstract representation of a wallet with a fading echo
 const Image2 = () => (
   <svg width="100%" height="100%" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="100" y="100" width="200" height="120" rx="20" fill="rgba(0, 255, 153, 0.4)"/>
-    <path d="M100 120 C100 108.954 108.954 100 120 100 H280 C291.046 100 300 108.954 300 120 V 140 H100 V 120 Z" fill="rgba(0, 255, 153, 0.6)"/>
-    <circle cx="280" cy="165" r="8" fill="rgba(0, 255, 153, 0.8)"/>
+    <g transform="translate(-20, 20)">
+      <rect x="100" y="100" width="200" height="120" rx="20" fill="rgba(0, 255, 153, 0.1)"/>
+      <path d="M100 120 C100 108.954 108.954 100 120 100 H280 C291.046 100 300 108.954 300 120 V 140 H100 V 120 Z" fill="rgba(0, 255, 153, 0.15)"/>
+    </g>
+    <g transform="translate(-10, 10)">
+      <rect x="100" y="100" width="200" height="120" rx="20" fill="rgba(0, 255, 153, 0.2)"/>
+      <path d="M100 120 C100 108.954 108.954 100 120 100 H280 C291.046 100 300 108.954 300 120 V 140 H100 V 120 Z" fill="rgba(0, 255, 153, 0.3)"/>
+    </g>
+    <g>
+      <rect x="100" y="100" width="200" height="120" rx="20" fill="#4ade80"/>
+      <path d="M100 120 C100 108.954 108.954 100 120 100 H280 C291.046 100 300 108.954 300 120 V 140 H100 V 120 Z" fill="#22c55e"/>
+      <circle cx="280" cy="165" r="8" fill="rgb(255, 255, 255)"/>
+    </g>
   </svg>
 );
 
