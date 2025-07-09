@@ -34,13 +34,13 @@ const FAQ = () => {
         <h2 className="text-3xl font-bold">Frequently Asked Questions</h2>
       </div>
       <div className="mx-auto mt-12 max-w-4xl px-6 lg:px-8">
-        <dl className="space-y-6 divide-y divide-white/10">
+        <dl className="divide-y divide-white/10 border-b border-white/10">
           {faqs.map((faq, index) => (
-            <div key={faq.question} className="pt-6">
+            <div key={faq.question}>
               <dt>
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="flex w-full items-start justify-between text-left"
+                  className="flex w-full items-start justify-between py-6 text-left"
                 >
                   <span className="text-lg font-semibold leading-7">{faq.question}</span>
                   <span className="ml-6 flex h-7 items-center">
@@ -53,13 +53,15 @@ const FAQ = () => {
                 </button>
               </dt>
               <dd
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  openIndex === index ? 'max-h-96 mt-4' : 'max-h-0'
+                className={`grid transition-all duration-500 ease-in-out ${
+                  openIndex === index ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
                 }`}
               >
-                <p className="text-base leading-7 text-[--brand-muted]">
-                  {faq.answer}
-                </p>
+                <div className="overflow-hidden">
+                  <p className="pb-6 text-base leading-7 text-[--brand-muted]">
+                    {faq.answer}
+                  </p>
+                </div>
               </dd>
             </div>
           ))}
