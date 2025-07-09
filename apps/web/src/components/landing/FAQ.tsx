@@ -44,11 +44,12 @@ const FAQ = () => {
                 >
                   <span className="text-lg font-semibold leading-7">{faq.question}</span>
                   <span className="ml-6 flex h-7 items-center">
-                    {openIndex === index ? (
-                      <Minus className="h-6 w-6" aria-hidden="true" />
-                    ) : (
-                      <Plus className="h-6 w-6" aria-hidden="true" />
-                    )}
+                    <Plus
+                      className={`h-6 w-6 transform transition-transform duration-500 ${
+                        openIndex === index ? 'rotate-45' : ''
+                      }`}
+                      aria-hidden="true"
+                    />
                   </span>
                 </button>
               </dt>
