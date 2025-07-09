@@ -6,11 +6,11 @@ const Hero = () => {
   return (
     <section className="flex min-h-[80vh] flex-col items-center justify-center gap-6 text-center">
       <h1 className="max-w-4xl text-4xl font-black leading-[2] sm:text-6xl">
-        <span className="text-[--brand-accent]">Claim the airdrop.</span>
+        <span className="text-[--brand-accent]">Claim the airdrop</span>
         <br />
-        Beat the dump.
+        Beat the dump
         <br />
-        <span className="text-[--brand-accent]">Lock in gains.</span>
+        <span className="text-[--brand-accent]">Lock in gains</span>
       </h1>
       <p className="max-w-2xl text-lg text-[--brand-muted]">
         Fast Drop watches the chain 24/7 and fires an atomic claim +
