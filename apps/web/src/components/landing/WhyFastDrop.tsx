@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   BoltIcon,
   CubeTransparentIcon,
@@ -35,6 +38,16 @@ const features = [
 ];
 
 const WhyFastDrop = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <section id="why-fast-drop" className="py-24 sm:py-32">
       <div className="mx-auto max-w-4xl px-6 text-center lg:px-8">
@@ -46,9 +59,9 @@ const WhyFastDrop = () => {
         {features.map((feature) => (
           <div
             key={feature.name}
-            className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg"
+            className="flex w-full items-stretch rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg"
           >
-            <div className="flex items-center">
+            <div className="flex w-72 flex-shrink-0 items-center border-r border-white/10 pr-8">
               <div className="flex-shrink-0">
                 <feature.icon
                   className={`h-7 w-7 ${feature.color}`}
@@ -61,9 +74,11 @@ const WhyFastDrop = () => {
                 </h3>
               </div>
             </div>
-            <p className="max-w-md text-base text-white/70">
-              {feature.description}
-            </p>
+            <div className="ml-8 flex-1">
+              <p className="text-base text-left text-white/70">
+                {feature.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>
