@@ -39,7 +39,7 @@ const Pricing = () => {
                       scope="col"
                       className="px-3 py-3.5 text-left text-sm font-semibold"
                     >
-                      Who it's for
+                      Who it&apos;s for
                     </th>
                     <th
                       scope="col"
